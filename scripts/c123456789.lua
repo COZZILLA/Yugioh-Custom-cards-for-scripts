@@ -1,4 +1,5 @@
 --Galactica Healing
+--created by COZZILLA
 local s,id=GetID()
 function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
@@ -43,7 +44,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                 e3:SetValue(1)
                 e3:SetReset(RESET_PHASE+PHASE_DAMAGE)
                 d:RegisterEffect(e3,true)
-	       		end
 		end 
 	end
 end 
