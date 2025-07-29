@@ -29,21 +29,5 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
         if ct>0 then
             Duel.BreakEffect()
             Duel.Recover(tp,ct*300,REASON_EFFECT)
-            local tc=Duel.GetAttackTarget()
-            local d=Duel.GetAttackTarget()
-            if ct==3 and tc:IsRelateToBattle() then
-                local e2=Effect.CreateEffect(e:GetHandler())
-                e2:SetType(EFFECT_TYPE_SINGLE)
-                e2:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-                e2:SetValue(1)
-                e2:SetReset(RESET_PHASE+PHASE_DAMAGE)
-                tc:RegisterEffect(e2,true)
-                local e3=Effect.CreateEffect(e:GetHandler())
-                e3:SetType(EFFECT_TYPE_SINGLE)
-                e3:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-                e3:SetValue(1)
-                e3:SetReset(RESET_PHASE+PHASE_DAMAGE)
-                d:RegisterEffect(e3,true)
-		end 
 	end
 end 
