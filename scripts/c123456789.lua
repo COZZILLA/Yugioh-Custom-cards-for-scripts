@@ -45,8 +45,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
                 e3:SetValue(1)
                 e3:SetReset(RESET_PHASE+PHASE_DAMAGE)
                 d:RegisterEffect(e3,true)
-	       			end 
-    			end
+	       		end
 		end 
 	end
 end 
