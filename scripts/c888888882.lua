@@ -1,6 +1,7 @@
---Eternal Mirage
---Created by COZZILLA
+--Eternal Mirage 
+--Created by COZZILLA 
 local s,id=GetID()
+
 function s.initial_effect(c)
     --Equip procedure
     local e1=Effect.CreateEffect(c)
@@ -12,41 +13,41 @@ function s.initial_effect(c)
     e1:SetTarget(s.target)
     e1:SetOperation(s.operation)
     c:RegisterEffect(e1)
-
-    --Allow equipped monster to attack twice
+    
+    --Equip limit
     local e2=Effect.CreateEffect(c)
-    e2:SetType(EFFECT_TYPE_EQUIP)
-    e2:SetCode(EFFECT_EXTRA_ATTACK)
-    e2:SetValue(1)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetCode(EFFECT_EQUIP_LIMIT)
+    e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+    e2:SetValue(s.eqlimit)
     c:RegisterEffect(e2)
-
-    --Prevent other monsters from attacking
+    
+    --Attack twice
     local e3=Effect.CreateEffect(c)
-    e3:SetType(EFFECT_TYPE_FIELD)
-    e3:SetCode(EFFECT_CANNOT_ATTACK)
-    e3:SetRange(LOCATION_SZONE)
-    e3:SetTargetRange(LOCATION_MZONE,0)
-    e3:SetTarget(s.atktg)
+    e3:SetType(EFFECT_TYPE_EQUIP)
+    e3:SetCode(EFFECT_EXTRA_ATTACK)
+    e3:SetValue(1)
     c:RegisterEffect(e3)
 
-    --Destruction replacement
+    --Other monsters can't attack
     local e4=Effect.CreateEffect(c)
-    e4:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_EQUIP)
-    e4:SetCode(EFFECT_DESTROY_REPLACE)
-    e4:SetTarget(s.reptg)
-    e4:SetOperation(s.repop)
+    e4:SetType(EFFECT_TYPE_FIELD)
+    e4:SetCode(EFFECT_CANNOT_ATTACK)
+    e4:SetRange(LOCATION_SZONE)
+    e4:SetTargetRange(LOCATION_MZONE,0)
+    e4:SetTarget(s.atklimit)
     c:RegisterEffect(e4)
 end
 
---Cost: Send 1 card from hand to Graveyard
+-- Must send 1 card from hand to GY as cost
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
     Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
 end
 
---Only target LIGHT Galaxy monsters
+-- Target face-up LIGHT Galaxy monster
 function s.filter(c)
-    return c:IsFaceup() and c:IsRace(RACE_GALAXY) and c:IsAttribute(ATTRIBUTE_LIGHT)
+    return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_GALAXY)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -59,27 +60,16 @@ end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local tc=Duel.GetFirstTarget()
-    if not c:IsRelateToEffect(e) then return end
-    if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
-        Duel.Equip(tp,c,tc)
-    end
+    if not c:IsRelateToEffect(e) or not tc or not tc:IsRelateToEffect(e) or tc:IsFacedown() then return end
+    Duel.Equip(tp,c,tc)
 end
 
---Other monsters can't attack
-function s.atktg(e,c)
+-- Equip limit: only LIGHT Galaxy monsters
+function s.eqlimit(e,c)
+    return c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_GALAXY)
+end
+
+-- Prevent other monsters from attacking
+function s.atklimit(e,c)
     return c~=e:GetHandler():GetEquipTarget()
-end
-
---Destruction substitute
-function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
-    local ec=e:GetHandler()
-    local tc=ec:GetEquipTarget()
-    if chk==0 then return tc and tc:IsOnField()
-        and tc:IsReason(REASON_BATTLE+REASON_EFFECT)
-        and not ec:IsStatus(STATUS_DESTROY_CONFIRMED) end
-    return true
-end
-
-function s.repop(e,tp,eg,ep,ev,re,r,rp)
-    Duel.SendtoGrave(e:GetHandler(),REASON_EFFECT)
 end
